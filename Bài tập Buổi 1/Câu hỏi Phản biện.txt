@@ -1,0 +1,1 @@
+Liệu có thể biết được công nghệ và hạ tầng máy chủ của website thông qua tab Network hay Headers của request tlu.edu.vn không? 
