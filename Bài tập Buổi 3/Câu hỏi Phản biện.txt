@@ -1,0 +1,1 @@
+Tại lệnh chuyển hướng header(), tài liệu lưu ý luôn phải gọi exit; ngay sau đó. Nếu tôi quên lệnh exit;, các dòng code phía dưới (nếu có) có tiếp tục được thực thi hay không, và điều này gây nguy hiểm gì?
