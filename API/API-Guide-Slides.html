@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng dẫn API với Laravel - Slide Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+        }
+
+        .slide-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 60px 50px;
+            background: #f8f9fa;
+            position: relative;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        h1 {
+            color: #1a1a1a;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        p, li {
+            color: #333;
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #333;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: #f0f4ff;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #d73a49;
+            font-size: 0.95em;
+        }
+
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        pre code {
+            background: none;
+            color: #d4d4d4;
+            padding: 0;
+            border-radius: 0;
+            font-size: 1em;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #333;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #e0e0e0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .slide-content {
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .example-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .topic-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        /* Scrollbar styling */
+        .slide-wrapper::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .slide-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .slide-wrapper::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+        }
+
+        .slide-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .slide-wrapper {
+                padding: 40px 20px;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.4em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+
+            p, li {
+                font-size: 1em;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="progress-bar" id="progressBar"></div>
+        
+        <div class="slide-wrapper" id="slideWrapper">
+            <!-- Slide 1: Title -->
+            <div class="slide active">
+                <div class="slide-content">
+                    <h1 style="text-align: center; color: #667eea; font-size: 3.5em; margin: 80px 0 40px 0;">
+                        🚀 HƯỚNG DẪN API VỚI LARAVEL
+                    </h1>
+                    <h2 style="text-align: center; border: none; color: #764ba2; font-size: 1.8em; margin: 40px 0;">
+                        Từ Cơ Bản Đến Nâng Cao
+                    </h2>
+                    <div style="text-align: center; margin-top: 80px; color: #666; font-size: 1.2em;">
+                        <p>📚 Hướng dẫn toàn diện về phát triển API RESTful</p>
+                        <p>💻 Sử dụng Laravel Framework</p>
+                        <p>🎯 Dành cho sinh viên bắt đầu học</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: API là gì -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 8.1</span>
+                    <h2>API là gì?</h2>
+                    <p><strong>API (Application Programming Interface)</strong> là một bộ quy tắc và giao thức cho phép các ứng dụng khác nhau giao tiếp với nhau.</p>
+                    
+                    <h3>Ví dụ thực tế:</h3>
+                    <ul>
+                        <li>✅ Một ứng dụng React frontend gọi API để lấy danh sách bài viết</li>
+                        <li>✅ Một ứng dụng mobile gọi API để đăng nhập người dùng</li>
+                        <li>✅ Một dịch vụ bên thứ ba gọi API để lấy dữ liệu</li>
+                    </ul>
+
+                    <h3>Khác biệt giữa API và Web truyền thống:</h3>
+                    <table>
+                        <tr>
+                            <th>Web Truyền Thống</th>
+                            <th>API</th>
+                        </tr>
+                        <tr>
+                            <td>Trả về HTML</td>
+                            <td>Trả về JSON/XML</td>
+                        </tr>
+                        <tr>
+                            <td>Hiển thị giao diện</td>
+                            <td>Cung cấp dữ liệu</td>
+                        </tr>
+                        <tr>
+                            <td>Browser là client chính</td>
+                            <td>Bất kỳ ứng dụng nào có thể là client</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Slide 3: RESTful API -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 8.1</span>
+                    <h2>RESTful API</h2>
+                    <p><strong>REST (Representational State Transfer)</strong> là một phong cách kiến trúc API dựa trên các nguyên tắc chuẩn.</p>
+
+                    <h3>4 Nguyên tắc REST:</h3>
+                    <table>
+                        <tr>
+                            <th>Nguyên tắc</th>
+                            <th>Mô tả</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Resource-based</strong></td>
+                            <td>Mỗi tài nguyên (users, posts) được biểu diễn qua URL</td>
+                        </tr>
+                        <tr>
+                            <td><strong>HTTP Methods</strong></td>
+                            <td>Sử dụng GET, POST, PUT, DELETE để chỉ định hành động</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Stateless</strong></td>
+                            <td>Mỗi request độc lập, không phụ thuộc vào request trước</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Representation</strong></td>
+                            <td>Dữ liệu được trả về ở định dạng JSON/XML</td>
+                        </tr>
+                    </table>
+
+                    <h3>HTTP Methods trong RESTful:</h3>
+                    <ul>
+                        <li><strong>GET:</strong> Lấy dữ liệu → <code>GET /api/posts</code></li>
+                        <li><strong>POST:</strong> Tạo mới → <code>POST /api/posts</code></li>
+                        <li><strong>PUT:</strong> Cập nhật toàn bộ → <code>PUT /api/posts/1</code></li>
+                        <li><strong>DELETE:</strong> Xóa → <code>DELETE /api/posts/1</code></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 4: Lợi ích API -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 8.1</span>
+                    <h2>Lợi ích của API</h2>
+
+                    <div class="example-box">
+                        <h3>💡 1. Tách biệt Frontend và Backend</h3>
+                        <p>Frontend và Backend phát triển độc lập → Dễ hợp tác trong team</p>
+                    </div>
+
+                    <div class="example-box">
+                        <h3>💡 2. Tái sử dụng</h3>
+                        <p>Một API có thể phục vụ nhiều client: web, mobile, desktop, IoT</p>
+                    </div>
+
+                    <div class="example-box">
+                        <h3>💡 3. Dễ bảo trì</h3>
+                        <p>Thay đổi backend không ảnh hưởng trực tiếp đến frontend</p>
+                    </div>
+
+                    <div class="example-box">
+                        <h3>💡 4. Linh hoạt</h3>
+                        <p>Dễ thêm các client mới mà không cần thay đổi server</p>
+                    </div>
+
+                    <div class="example-box">
+                        <h3>💡 5. Scalability</h3>
+                        <p>Dễ dàng mở rộng hệ thống khi có nhu cầu tăng</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: API Routes -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 8.2</span>
+                    <h2>Định Tuyến API (api.php)</h2>
+
+                    <p>Trong Laravel, tất cả các route API được định nghĩa trong file <code>routes/api.php</code></p>
+
+                    <h3>Khác biệt: routes/api.php vs routes/web.php</h3>
+                    <table>
+                        <tr>
+                            <th>Đặc điểm</th>
+                            <th>api.php</th>
+                            <th>web.php</th>
+                        </tr>
+                        <tr>
+                            <td>Session State</td>
+                            <td>❌ Không có</td>
+                            <td>✅ Có</td>
+                        </tr>
+                        <tr>
+                            <td>Prefix mặc định</td>
+                            <td>/api</td>
+                            <td>Không có</td>
+                        </tr>
+                        <tr>
+                            <td>CSRF Protection</td>
+                            <td>❌ Không cần</td>
+                            <td>✅ Có</td>
+                        </tr>
+                        <tr>
+                            <td>Middleware</td>
+                            <td>api</td>
+                            <td>web</td>
+                        </tr>
+                        <tr>
+                            <td>Return</td>
+                            <td>JSON</td>
+                            <td>HTML (View)</td>
+                        </tr>
+                    </table>
+
+                    <h3>Ví dụ cấu trúc routes/api.php:</h3>
+                    <pre><code>Route::middleware('api')->group(function () {
+    Route::apiResource('posts', PostController::class);
+    Route::apiResource('users', UserController::class);
+    Route::post('posts/{post}/publish', [PostController::class, 'publish']);
+});</code></pre>
+                </div>
+            </div>
+
+            <!-- Slide 6: apiResource vs resource -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 8.2</span>
+                    <h2>apiResource vs resource</h2>
+
+                    <p>Laravel cung cấp hai helper để tạo routes một cách tự động:</p>
+
+                    <h3>Bảng so sánh chi tiết:</h3>
+                    <table>
+                        <tr>
+                            <th>HTTP Method & Route</th>
+                            <th>apiResource</th>
+                            <th>resource</th>
+                            <th>Mục đích</th>
+                        </tr>
+                        <tr>
+                            <td>GET /posts</td>
+                            <td>✅ index()</td>
+                            <td>✅ index()</td>
+                            <td>Lấy danh sách</td>
+                        </tr>
+                        <tr>
+                            <td>GET /posts/create</td>
+                            <td>❌</td>
+                            <td>✅ create()</td>
+                            <td>Form tạo mới</td>
+                        </tr>
+                        <tr>
+                            <td>POST /posts</td>
+                            <td>✅ store()</td>
+                            <td>✅ store()</td>
+                            <td>Lưu dữ liệu mới</td>
+                        </tr>
+                        <tr>
+                            <td>GET /posts/{id}</td>
+                            <td>✅ show()</td>
+                            <td>✅ show()</td>
+                            <td>Chi tiết resource</td>
+                        </tr>
+                        <tr>
+                            <td>GET /posts/{id}/edit</td>
+                            <td>❌</td>
+                            <td>✅ edit()</td>
+                            <td>Form chỉnh sửa</td>
+                        </tr>
+                        <tr>
+                            <td>PUT /posts/{id}</td>
+                            <td>✅ update()</td>
+                            <td>✅ update()</td>
+                            <td>Cập nhật dữ liệu</td>
+                        </tr>
+                        <tr>
+                            <td>DELETE /posts/{id}</td>
+                            <td>✅ destroy()</td>
+                            <td>✅ destroy()</td>
+                            <td>Xóa dữ liệu</td>
+                        </tr>
+                    </table>
+
+                    <div class="success-box">
+                        <strong>💡 Quy tắc:</strong> Dùng <code>apiResource</code> cho API (không cần form HTML), dùng <code>resource</code> cho web truyền thống
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7: API Controllers -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 8.2</span>
+                    <h2>API Controllers</h2>
+
+                    <p>API Controllers khác với Web Controllers ở những điểm chính:</p>
+
+                    <h3>Đặc điểm của API Controller:</h3>
+                    <ul>
+                        <li>❌ <strong>Không trả về View</strong> (Blade template)</li>
+                        <li>✅ <strong>Trả về JSON response</strong></li>
+                        <li>❌ <strong>Không xử lý HTTP session</strong></li>
+                        <li>✅ <strong>Xử lý HTTP status codes rõ ràng</strong></li>
+                        <li>✅ <strong>Xử lý lỗi theo chuẩn HTTP</strong></li>
+                    </ul>
+
+                    <h3>Tạo API Controller:</h3>
+                    <pre><code>php artisan make:controller Api/PostController --api</code></pre>
+
+                    <div class="example-box">
+                        <strong>Kết quả:</strong> Tạo controller với 7 method cơ bản:
+                        <ul>
+                            <li>index() - Lấy danh sách</li>
+                            <li>store() - Tạo mới</li>
+                            <li>show() - Chi tiết</li>
+                            <li>update() - Cập nhật</li>
+                            <li>destroy() - Xóa</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8: JSON Response -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 8.3</span>
+                    <h2>Trả về JSON Response</h2>
+
+                    <p>Laravel cung cấp helper <code>response()->json()</code> để trả về JSON dễ dàng:</p>
+
+                    <h3>Cách sử dụng cơ bản:</h3>
+                    <pre><code>// Cách 1: Đơn giản
+return response()->json($data);
+
+// Cách 2: Với status code
+return response()->json($data, 200);
+
+// Cách 3: Với headers
+return response()->json($data, 200, [], JSON_UNESCAPED_UNICODE);</code></pre>
+
+                    <h3>Ví dụ JSON Response thực tế:</h3>
+                    <pre><code>return response()->json([
+    'success' => true,
+    'data' => [
+        'id' => 1,
+        'title' => 'Học Laravel API',
+        'author' => 'Trần Văn A'
+    ],
+    'message' => 'Lấy dữ liệu thành công'
+], 200);</code></pre>
+
+                    <h3>Response nhận được:</h3>
+                    <pre><code>{
+    "success": true,
+    "data": {
+        "id": 1,
+        "title": "Học Laravel API",
+        "author": "Trần Văn A"
+    },
+    "message": "Lấy dữ liệu thành công"
+}</code></pre>
+                </div>
+            </div>
+
+            <!-- Slide 9: API Resources -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 8.3</span>
+                    <h2>Eloquent API Resources</h2>
+
+                    <p><strong>API Resources</strong> cho phép bạn định dạng dữ liệu trước khi trả về từ API</p>
+
+                    <h3>Lợi ích của API Resources:</h3>
+                    <ul>
+                        <li>✅ Định dạng dữ liệu một cách nhất quán</li>
+                        <li>✅ Ẩn các trường nhạy cảm (password, token, v.v.)</li>
+                        <li>✅ Thêm dữ liệu tính toán</li>
+                        <li>✅ Tái sử dụng format dữ liệu</li>
+                        <li>✅ Dễ dàng thay đổi response format</li>
+                    </ul>
+
+                    <h3>Tạo API Resource:</h3>
+                    <pre><code>php artisan make:resource PostResource</code></pre>
+
+                    <div class="success-box">
+                        <strong>💡 Nên dùng Resource khi:</strong>
+                        <ul>
+                            <li>Cần ẩn một số field khỏi response</li>
+                            <li>Cần format dữ liệu (date, số tiền, v.v.)</li>
+                            <li>Cần thêm dữ liệu tính toán</li>
+                            <li>Cần tái sử dụng format ở nhiều chỗ</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 10: FormRequest -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 9.2</span>
+                    <h2>Validation bằng FormRequest</h2>
+
+                    <p><strong>FormRequest</strong> là một class để tập trung xác thực dữ liệu của request</p>
+
+                    <h3>Lợi ích FormRequest:</h3>
+                    <ul>
+                        <li>✅ Tách biệt logic validation khỏi controller</li>
+                        <li>✅ Dễ tái sử dụng validation rules</li>
+                        <li>✅ Dễ bảo trì</li>
+                        <li>✅ Có thể tùy chỉnh response lỗi</li>
+                    </ul>
+
+                    <h3>Tạo FormRequest:</h3>
+                    <pre><code>php artisan make:request StorePostRequest
+php artisan make:request UpdatePostRequest</code></pre>
+
+                    <h3>Sử dụng trong Controller:</h3>
+                    <pre><code>public function store(StorePostRequest $request)
+{
+    // Dữ liệu đã được validate tự động
+    $validated = $request->validated();
+    
+    $post = Post::create($validated);
+    
+    return response()->json([...], 201);
+}</code></pre>
+                </div>
+            </div>
+
+            <!-- Slide 11: Validation Rules -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 9.2</span>
+                    <h2>Các Validation Rules phổ biến</h2>
+
+                    <table>
+                        <tr>
+                            <th>Rule</th>
+                            <th>Mô tả</th>
+                            <th>Ví dụ</th>
+                        </tr>
+                        <tr>
+                            <td><code>required</code></td>
+                            <td>Trường bắt buộc</td>
+                            <td><code>'name' => 'required'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>string</code></td>
+                            <td>Phải là string</td>
+                            <td><code>'title' => 'string'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>integer</code></td>
+                            <td>Phải là số nguyên</td>
+                            <td><code>'age' => 'integer'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>email</code></td>
+                            <td>Phải là email hợp lệ</td>
+                            <td><code>'email' => 'email'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>min:value</code></td>
+                            <td>Độ dài tối thiểu</td>
+                            <td><code>'password' => 'min:8'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>max:value</code></td>
+                            <td>Độ dài tối đa</td>
+                            <td><code>'name' => 'max:255'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>unique:table,column</code></td>
+                            <td>Phải unique trong DB</td>
+                            <td><code>'email' => 'unique:users'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>exists:table,column</code></td>
+                            <td>Phải tồn tại trong DB</td>
+                            <td><code>'user_id' => 'exists:users,id'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>in:val1,val2</code></td>
+                            <td>Phải là một trong các giá trị</td>
+                            <td><code>'status' => 'in:draft,published'</code></td>
+                        </tr>
+                    </table>
+
+                    <h3>Ví dụ kết hợp multiple rules:</h3>
+                    <pre><code>'email' => 'required|email|unique:users,email',
+'password' => 'required|string|min:8|confirmed',
+'age' => 'required|integer|min:18|max:120'</code></pre>
+                </div>
+            </div>
+
+            <!-- Slide 12: Postman -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 10.1</span>
+                    <h2>Giới thiệu Postman</h2>
+
+                    <p><strong>Postman</strong> là công cụ phổ biến nhất để kiểm thử, phát triển và tài liệu hóa API</p>
+
+                    <h3>Postman cho phép bạn:</h3>
+                    <ul>
+                        <li>✅ Gửi các HTTP request đến API (GET, POST, PUT, DELETE)</li>
+                        <li>✅ Xem response chi tiết và headers</li>
+                        <li>✅ Lưu các request để tái sử dụng</li>
+                        <li>✅ Tạo collections để quản lý API</li>
+                        <li>✅ Kiểm thử tự động</li>
+                        <li>✅ Tạo documentation cho API</li>
+                    </ul>
+
+                    <h3>Cài đặt Postman:</h3>
+                    <ol>
+                        <li>Tải từ: <code>https://www.postman.com/downloads/</code></li>
+                        <li>Cài đặt ứng dụng</li>
+                        <li>Tạo tài khoản (tùy chọn)</li>
+                        <li>Tạo Workspace mới</li>
+                    </ol>
+
+                    <div class="example-box">
+                        <strong>💡 Mẹo:</strong> Postman có phiên bản web (không cần cài đặt) và desktop (mạnh hơn)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 13: HTTP Status Codes -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 10.3</span>
+                    <h2>HTTP Status Codes</h2>
+
+                    <p>HTTP status codes cho biết kết quả của request API:</p>
+
+                    <h3>Status Codes phổ biến:</h3>
+                    <table>
+                        <tr>
+                            <th>Code</th>
+                            <th>Ý nghĩa</th>
+                            <th>Sử dụng</th>
+                        </tr>
+                        <tr>
+                            <td><strong>200</strong></td>
+                            <td>OK</td>
+                            <td>GET, PUT, PATCH thành công</td>
+                        </tr>
+                        <tr>
+                            <td><strong>201</strong></td>
+                            <td>Created</td>
+                            <td>POST tạo resource mới thành công</td>
+                        </tr>
+                        <tr>
+                            <td><strong>204</strong></td>
+                            <td>No Content</td>
+                            <td>DELETE thành công (không có response body)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>400</strong></td>
+                            <td>Bad Request</td>
+                            <td>Request không hợp lệ</td>
+                        </tr>
+                        <tr>
+                            <td><strong>401</strong></td>
+                            <td>Unauthorized</td>
+                            <td>Không xác thực hoặc token không hợp lệ</td>
+                        </tr>
+                        <tr>
+                            <td><strong>403</strong></td>
+                            <td>Forbidden</td>
+                            <td>Không có quyền truy cập</td>
+                        </tr>
+                        <tr>
+                            <td><strong>404</strong></td>
+                            <td>Not Found</td>
+                            <td>Resource không tồn tại</td>
+                        </tr>
+                        <tr>
+                            <td><strong>422</strong></td>
+                            <td>Unprocessable Entity</td>
+                            <td>Validation failed</td>
+                        </tr>
+                        <tr>
+                            <td><strong>500</strong></td>
+                            <td>Server Error</td>
+                            <td>Lỗi ở server</td>
+                        </tr>
+                    </table>
+
+                    <div class="success-box">
+                        <strong>💡 Quy tắc:</strong> Luôn trả về status code chính xác để client biết kết quả
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 14: Stateful vs Stateless -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 11.1</span>
+                    <h2>Stateful vs Stateless Authentication</h2>
+
+                    <h3>Stateful (Session-based):</h3>
+                    <ul>
+                        <li>📌 Server lưu trữ session của user</li>
+                        <li>🔄 Client gửi session ID trong mỗi request</li>
+                        <li>❌ Khó mở rộng (khó scale horizontally)</li>
+                        <li>🕐 Session có thể timeout</li>
+                        <li>✅ Phù hợp: Web truyền thống</li>
+                    </ul>
+
+                    <h3>Stateless (Token-based):</h3>
+                    <ul>
+                        <li>📭 Server không lưu trữ state</li>
+                        <li>🔑 Client gửi token trong Authorization header</li>
+                        <li>✅ Dễ mở rộng (dễ scale horizontally)</li>
+                        <li>⏰ Token có thời gian hết hạn</li>
+                        <li>✅ Phù hợp: API, Mobile, SPA</li>
+                    </ul>
+
+                    <h3>Bảng so sánh:</h3>
+                    <table>
+                        <tr>
+                            <th>Đặc điểm</th>
+                            <th>Stateful</th>
+                            <th>Stateless</th>
+                        </tr>
+                        <tr>
+                            <td>Server State</td>
+                            <td>Lưu session</td>
+                            <td>Không lưu</td>
+                        </tr>
+                        <tr>
+                            <td>Scalability</td>
+                            <td>Khó mở rộng</td>
+                            <td>Dễ mở rộng</td>
+                        </tr>
+                        <tr>
+                            <td>Storage</td>
+                            <td>Server/DB</td>
+                            <td>Client</td>
+                        </tr>
+                        <tr>
+                            <td>Transmission</td>
+                            <td>Cookie</td>
+                            <td>Header (Authorization)</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Slide 15: Laravel Sanctum -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 11.2</span>
+                    <h2>Laravel Sanctum</h2>
+
+                    <p><strong>Laravel Sanctum</strong> là package bảo mật chính thức của Laravel cho API authentication</p>
+
+                    <h3>Sanctum cho phép bạn:</h3>
+                    <ul>
+                        <li>✅ Cấp API tokens cho users</li>
+                        <li>✅ Xác thực stateless API requests</li>
+                        <li>✅ Bảo vệ routes bằng middleware</li>
+                        <li>✅ Quản lý token expiration</li>
+                        <li>✅ Tạo personal access tokens</li>
+                    </ul>
+
+                    <h3>Cài đặt Sanctum:</h3>
+                    <pre><code># Cài đặt package
+composer require laravel/sanctum
+
+# Publish migrations
+php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
+
+# Chạy migrations
+php artisan migrate</code></pre>
+
+                    <h3>Cấu hình trong Model:</h3>
+                    <pre><code>namespace App\Models;
+
+use Laravel\Sanctum\HasApiTokens;
+
+class User extends Model
+{
+    use HasApiTokens;
+}</code></pre>
+
+                    <div class="success-box">
+                        <strong>💡 Kết quả:</strong> Tạo bảng <code>personal_access_tokens</code> để lưu trữ tokens
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 16: Authentication Flow -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 11.3</span>
+                    <h2>Authentication Flow</h2>
+
+                    <h3>1️⃣ Đăng ký (Register):</h3>
+                    <pre><code>POST /api/auth/register
+{
+    "name": "Trần Văn A",
+    "email": "tranan@example.com",
+    "password": "password123",
+    "password_confirmation": "password123"
+}</code></pre>
+
+                    <h3>2️⃣ Đăng nhập (Login):</h3>
+                    <pre><code>POST /api/auth/login
+{
+    "email": "tranan@example.com",
+    "password": "password123"
+}
+
+Response: {
+    "token": "1|abcdefghijklmnopqrstuvwxyz..."
+}</code></pre>
+
+                    <h3>3️⃣ Sử dụng Token:</h3>
+                    <pre><code>GET /api/posts
+Authorization: Bearer 1|abcdefghijklmnopqrstuvwxyz...</code></pre>
+
+                    <h3>4️⃣ Đăng xuất (Logout):</h3>
+                    <pre><code>POST /api/auth/logout
+Authorization: Bearer 1|abcdefghijklmnopqrstuvwxyz...</code></pre>
+
+                    <div class="success-box">
+                        <strong>💡 Quy trình:</strong> Register → Login (nhận token) → Dùng token → Logout
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 17: CORS -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 12.1</span>
+                    <h2>CORS (Cross-Origin Resource Sharing)</h2>
+
+                    <p><strong>CORS</strong> là cơ chế bảo mật của trình duyệt kiểm soát cross-origin requests</p>
+
+                    <h3>Vấn đề CORS:</h3>
+                    <div class="warning-box">
+                        <strong>Frontend:</strong> http://localhost:3000<br>
+                        <strong>Backend API:</strong> http://localhost:8000<br>
+                        <br>
+                        👉 Trình duyệt sẽ <strong>chặn</strong> request vì domain/port khác!
+                    </div>
+
+                    <h3>Quy trình CORS:</h3>
+                    <ol>
+                        <li>Browser gửi Preflight Request (OPTIONS)</li>
+                        <li>Server trả về CORS headers xác nhận</li>
+                        <li>Nếu được phép → Browser gửi Actual Request</li>
+                        <li>Nếu không → Browser chặn request</li>
+                    </ol>
+
+                    <h3>Cấu hình CORS trong Laravel:</h3>
+                    <pre><code>// config/cors.php
+return [
+    'paths' => ['api/*'],
+    'allowed_origins' => [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'https://example.com'
+    ],
+    'allowed_methods' => ['*'],
+    'allowed_headers' => ['*']
+];</code></pre>
+                </div>
+            </div>
+
+            <!-- Slide 18: Frontend Integration -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 12.2</span>
+                    <h2>Kết nối Frontend với API</h2>
+
+                    <h3>Ví dụ Fetch API (Vanilla JavaScript):</h3>
+
+                    <h4>1. Lấy danh sách bài viết:</h4>
+                    <pre><code>fetch('http://localhost:8000/api/posts')
+    .then(response => response.json())
+    .then(data => {
+        console.log(data.data);
+        displayPosts(data.data);
+    })
+    .catch(error => console.error('Error:', error));</code></pre>
+
+                    <h4>2. Tạo bài viết mới:</h4>
+                    <pre><code>fetch('http://localhost:8000/api/posts', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+    },
+    body: JSON.stringify({
+        title: 'Bài viết mới',
+        content: 'Nội dung...',
+        user_id: 1
+    })
+})
+.then(response => response.json())
+.then(data => console.log(data));</code></pre>
+
+                    <h4>3. Xóa bài viết:</h4>
+                    <pre><code>fetch(`http://localhost:8000/api/posts/${id}`, {
+    method: 'DELETE',
+    headers: {
+        'Authorization': 'Bearer ' + token
+    }
+});</code></pre>
+                </div>
+            </div>
+
+            <!-- Slide 19: React Example -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">CHƯƠNG 12.2</span>
+                    <h2>Frontend với React</h2>
+
+                    <h3>Ví dụ Component React:</h3>
+                    <pre><code>import { useState, useEffect } from 'react';
+
+function Posts() {
+    const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('http://localhost:8000/api/posts')
+            .then(r => r.json())
+            .then(data => {
+                setPosts(data.data);
+                setLoading(false);
+            });
+    }, []);
+
+    if (loading) return <div>Loading...</div>;
+
+    return (
+        <div>
+            {posts.map(post => (
+                <article key={post.id}>
+                    <h2>{post.title}</h2>
+                    <p>{post.content}</p>
+                    <small>by {post.author}</small>
+                </article>
+            ))}
+        </div>
+    );
+}</code></pre>
+
+                    <div class="success-box">
+                        <strong>💡 Mẹo:</strong> Dùng libraries như Axios hoặc React Query để quản lý requests dễ hơn
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 20: Best Practices -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">TỔNG QUÁT</span>
+                    <h2>Best Practices</h2>
+
+                    <h3>🔐 1. Security (Bảo mật)</h3>
+                    <ul>
+                        <li>✅ Luôn validate input từ client</li>
+                        <li>✅ Sử dụng HTTPS trong production</li>
+                        <li>✅ Không expose sensitive data (passwords, tokens)</li>
+                        <li>✅ Sử dụng rate limiting để ngăn brute force</li>
+                    </ul>
+
+                    <h3>📋 2. Response Format (Format Response)</h3>
+                    <ul>
+                        <li>✅ Consistent response structure</li>
+                        <li>✅ Bao gồm success flag, data, message</li>
+                        <li>✅ Proper HTTP status codes</li>
+                    </ul>
+
+                    <h3>📝 3. Error Handling (Xử lý lỗi)</h3>
+                    <ul>
+                        <li>✅ Meaningful error messages</li>
+                        <li>✅ Validation errors chi tiết</li>
+                        <li>✅ Log errors trên server</li>
+                    </ul>
+
+                    <h3>🚀 4. Performance (Hiệu suất)</h3>
+                    <ul>
+                        <li>✅ Implement pagination cho danh sách lớn</li>
+                        <li>✅ Eager loading để tránh N+1 queries</li>
+                        <li>✅ Caching khi cần thiết</li>
+                    </ul>
+
+                    <h3>📚 5. Naming Conventions (Đặt tên)</h3>
+                    <ul>
+                        <li>✅ Routes: kebab-case (<code>/api/posts</code>)</li>
+                        <li>✅ Methods: camelCase (<code>getPosts</code>)</li>
+                        <li>✅ Database: snake_case (<code>user_profiles</code>)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 21: API Workflow -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">TỔNG QUÁT</span>
+                    <h2>API Development Workflow</h2>
+
+                    <h3>Quy trình phát triển API:</h3>
+
+                    <div style="background: #e7f3ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <h4 style="color: #667eea; margin: 10px 0;">1. DESIGN API</h4>
+                        <ul style="margin: 10px 0 20px 20px;">
+                            <li>📋 Định nghĩa endpoints</li>
+                            <li>📋 Xác định HTTP methods</li>
+                            <li>📋 Thiết kế response format</li>
+                        </ul>
+
+                        <h4 style="color: #667eea; margin: 10px 0;">2. IMPLEMENT BACKEND</h4>
+                        <ul style="margin: 10px 0 20px 20px;">
+                            <li>💾 Tạo routes (routes/api.php)</li>
+                            <li>💾 Tạo API Controllers</li>
+                            <li>💾 Tạo FormRequests để validation</li>
+                            <li>💾 Tạo API Resources để format response</li>
+                        </ul>
+
+                        <h4 style="color: #667eea; margin: 10px 0;">3. IMPLEMENT AUTHENTICATION</h4>
+                        <ul style="margin: 10px 0 20px 20px;">
+                            <li>🔐 Tạo Auth Controller (register, login, logout)</li>
+                            <li>🔐 Cấu hình Sanctum tokens</li>
+                            <li>🔐 Bảo vệ routes với middleware</li>
+                        </ul>
+
+                        <h4 style="color: #667eea; margin: 10px 0;">4. TEST API</h4>
+                        <ul style="margin: 10px 0 20px 20px;">
+                            <li>✅ Kiểm thử endpoints bằng Postman</li>
+                            <li>✅ Kiểm thử validation</li>
+                            <li>✅ Kiểm thử authentication</li>
+                        </ul>
+
+                        <h4 style="color: #667eea; margin: 10px 0;">5. CONFIGURE CORS</h4>
+                        <ul style="margin: 10px 0 20px 20px;">
+                            <li>🌐 Cấu hình allowed origins</li>
+                            <li>🌐 Cấu hình allowed methods</li>
+                            <li>🌐 Cấu hình allowed headers</li>
+                        </ul>
+
+                        <h4 style="color: #667eea; margin: 10px 0;">6. INTEGRATE FRONTEND</h4>
+                        <ul style="margin: 10px 0;">
+                            <li>🎨 Implement Fetch API / Axios</li>
+                            <li>🎨 Xử lý requests và responses</li>
+                            <li>🎨 Lưu tokens</li>
+                            <li>🎨 Hiển thị dữ liệu</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 22: Conclusion -->
+            <div class="slide">
+                <div class="slide-content">
+                    <h1 style="text-align: center; color: #667eea; font-size: 2.5em; margin: 60px 0 40px 0;">
+                        🎉 Kết Luận
+                    </h1>
+
+                    <div class="success-box" style="margin: 30px 0;">
+                        <h3 style="text-align: center;">Bạn đã học được:</h3>
+                        <ul>
+                            <li>✅ Khái niệm API và RESTful</li>
+                            <li>✅ Tạo API Routes và Controllers</li>
+                            <li>✅ Trả về JSON Response và API Resources</li>
+                            <li>✅ Validation dữ liệu bằng FormRequest</li>
+                            <li>✅ Kiểm thử API bằng Postman</li>
+                            <li>✅ Stateful vs Stateless Authentication</li>
+                            <li>✅ Laravel Sanctum Token-based Auth</li>
+                            <li>✅ CORS và Frontend Integration</li>
+                        </ul>
+                    </div>
+
+                    <div class="example-box" style="margin: 30px 0; text-align: center;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">Tiếp theo:</h3>
+                        <p style="font-size: 1.2em;">Hãy thực hành xây dựng một API hoàn chỉnh từ đầu!</p>
+                        <p style="font-size: 1.1em; margin-top: 15px; color: #764ba2;">
+                            <strong>Gợi ý project:</strong> Blog API, Todo API, E-commerce API
+                        </p>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 80px; font-size: 1.5em; color: #667eea; font-weight: bold;">
+                        💻 HEY! CODING IS EASY! 💻
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="prevBtn" onclick="changeSlide(-1)">← Slide Trước</button>
+            <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">22</span></span>
+            <button id="nextBtn" onclick="changeSlide(1)">Slide Tiếp →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            } else if (n < 1) {
+                currentSlide = 1;
+            }
+
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+
+            document.getElementById('currentSlide').textContent = currentSlide;
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+
+            // Update progress bar
+            const progress = (currentSlide / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+
+            // Scroll to top
+            document.getElementById('slideWrapper').scrollTop = 0;
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            }
+        });
+
+        // Initialize
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

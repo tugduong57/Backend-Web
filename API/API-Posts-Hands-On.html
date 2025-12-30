@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng dẫn Thực Hành: Tạo API Posts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+        }
+
+        .slide-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 50px 40px;
+            background: #f8f9fa;
+            position: relative;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        h1 {
+            color: #1a1a1a;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 12px;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.3em;
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        h4 {
+            color: #667eea;
+            font-size: 1.1em;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        p, li {
+            color: #333;
+            font-size: 1em;
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d73a49;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 12px 0;
+            font-size: 0.85em;
+            line-height: 1.5;
+            border-left: 4px solid #667eea;
+        }
+
+        pre code {
+            background: none;
+            color: #d4d4d4;
+            padding: 0;
+            font-size: 1em;
+        }
+
+        .step-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 1.1em;
+        }
+
+        .topic-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 18px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        .progress-bar {
+            height: 3px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            font-size: 0.95em;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f0f4ff;
+        }
+
+        .file-path {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d73a49;
+            font-size: 0.9em;
+        }
+
+        .command {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+
+        .highlight-yellow {
+            background: #fff3cd;
+            padding: 2px 4px;
+        }
+
+        .highlight-green {
+            background: #d4edda;
+            padding: 2px 4px;
+            color: #155724;
+        }
+
+        @media (max-width: 768px) {
+            .slide-wrapper {
+                padding: 30px 20px;
+            }
+
+            h1 { font-size: 1.6em; }
+            h2 { font-size: 1.4em; }
+            h3 { font-size: 1.1em; }
+            p, li { font-size: 0.95em; }
+            pre { font-size: 0.8em; }
+        }
+
+        .slide-wrapper::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .slide-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .slide-wrapper::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="progress-bar" id="progressBar"></div>
+        
+        <div class="slide-wrapper" id="slideWrapper">
+            <!-- Slide 1: Title -->
+            <div class="slide active">
+                <div class="slide-content">
+                    <h1 style="text-align: center; color: #667eea; font-size: 2.8em; margin: 60px 0 30px 0;">
+                        🚀 THỰC HÀNH: TẠO API POSTS
+                    </h1>
+                    <h2 style="text-align: center; border: none; color: #764ba2; font-size: 1.5em; margin: 30px 0;">
+                        Hướng dẫn Chi Tiết Từng Bước
+                    </h2>
+                    <div style="text-align: center; margin-top: 60px; color: #666;">
+                        <p style="font-size: 1.05em; margin: 10px 0;">📚 Sử dụng database posts từ Laravel 01</p>
+                        <p style="font-size: 1.05em; margin: 10px 0;">💻 Tạo API để trả về mảng JSON</p>
+                        <p style="font-size: 1.05em; margin: 10px 0;">🎯 Từ cơ bản đến thành công</p>
+                    </div>
+                    <div class="success-box" style="margin: 50px 0 0 0;">
+                        <strong>✅ Điều kiện:</strong> Bạn đã hoàn thành Laravel 01 với bảng <code>posts</code> và Model <code>Post</code>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Overview -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">TỔNG QUAN</span>
+                    <h2>Quy Trình Tạo API</h2>
+
+                    <p>Chúng ta sẽ thực hiện 5 bước chính:</p>
+
+                    <div class="step-box">
+                        <p><span class="step-number">1</span> <strong>Tạo API Route</strong> trong routes/api.php</p>
+                    </div>
+
+                    <div class="step-box">
+                        <p><span class="step-number">2</span> <strong>Tạo API Controller</strong> Api/PostController</p>
+                    </div>
+
+                    <div class="step-box">
+                        <p><span class="step-number">3</span> <strong>Viết các method CRUD</strong> (index, show, store, update, destroy)</p>
+                    </div>
+
+                    <div class="step-box">
+                        <p><span class="step-number">4</span> <strong>Tạo API Resource</strong> để format response</p>
+                    </div>
+
+                    <div class="step-box">
+                        <p><span class="step-number">5</span> <strong>Kiểm thử API</strong> bằng Postman</p>
+                    </div>
+
+                    <div class="success-box" style="margin-top: 25px;">
+                        <strong>🎯 Kết quả cuối cùng:</strong> API trả về mảng JSON danh sách posts có thể sử dụng ngay
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: Kiểm tra cấu trúc hiện tại -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">BƯỚC 0: KIỂM TRA</span>
+                    <h2>Kiểm Tra Cấu Trúc Hiện Tại</h2>
+
+                    <p>Trước khi bắt đầu, hãy kiểm tra:</p>
+
+                    <h3>1️⃣ Model Post tồn tại:</h3>
+                    <div class="file-path">app/Models/Post.php</div>
+                    <p>Nội dung cơ bản:</p>
+                    <pre><code>namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Post extends Model
+{
+    protected $fillable = ['title', 'content'];
+}</code></pre>
+
+                    <h3>2️⃣ Bảng posts tồn tại trong database:</h3>
+                    <p>Các cột: <code>id</code>, <code>title</code>, <code>content</code>, <code>created_at</code>, <code>updated_at</code></p>
+
+                    <h3>3️⃣ Có dữ liệu trong bảng posts:</h3>
+                    <div class="info-box">
+                        <strong>💡 Nếu chưa có dữ liệu:</strong> Sử dụng database seeder hoặc insert thủ công vài posts
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: Bước 1 - Tạo Routes -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">BƯỚC 1</span>
+                    <h2>Tạo API Routes</h2>
+
+                    <h3>Mở file: <span class="file-path">routes/api.php</span></h3>
+
+                    <p>Thêm route cho API posts (thay thế nội dung hiện tại hoặc thêm vào):</p>
+
+                    <pre><code>&lt;?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\PostController;
+
+// Routes công khai - không cần xác thực
+Route::apiResource('posts', PostController::class);
+
+// Hoặc chi tiết hơn:
+Route::get('/posts', [PostController::class, 'index']);
+Route::post('/posts', [PostController::class, 'store']);
+Route::get('/posts/{id}', [PostController::class, 'show']);
+Route::put('/posts/{id}', [PostController::class, 'update']);
+Route::delete('/posts/{id}', [PostController::class, 'destroy']);</code></pre>
+
+                    <div class="success-box">
+                        <strong>✅ Lý giải:</strong>
+                        <ul style="margin: 8px 0 0 0;">
+                            <li><code>apiResource('posts', PostController::class)</code> tạo 5 routes tự động</li>
+                            <li>Hoặc có thể khai báo từng route riêng lẻ (phần chi tiết)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: Bước 2 - Tạo Controller -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">BƯỚC 2</span>
+                    <h2>Tạo API Controller</h2>
+
+                    <h3>Chạy lệnh Artisan:</h3>
+                    <div class="command">php artisan make:controller Api/PostController --api</div>
+
+                    <div class="info-box">
+                        <strong>ℹ️ Lệnh này tạo:</strong>
+                        <ul style="margin: 8px 0 0 0;">
+                            <li>Thư mục: <span class="file-path">app/Http/Controllers/Api/</span></li>
+                            <li>File: <span class="file-path">PostController.php</span></li>
+                            <li>Với 5 method cơ bản sẵn</li>
+                        </ul>
+                    </div>
+
+                    <h3>File được tạo ra:</h3>
+                    <p><span class="file-path">app/Http/Controllers/Api/PostController.php</span></p>
+
+                    <p>Nội dung mẫu (sẽ được chỉnh sửa ở bước sau):</p>
+                    <pre><code>&lt;?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+class PostController extends Controller
+{
+    public function index() { }
+    public function store(Request $request) { }
+    public function show($id) { }
+    public function update(Request $request, $id) { }
+    public function destroy($id) { }
+}</code></pre>
+                </div>
+            </div>
+
+            <!-- Slide 6: Bước 3 - Viết method index() -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">BƯỚC 3</span>
+                    <h2>Viết Method index() - Lấy Danh Sách</h2>
+
+                    <p>Mở file <span class="file-path">app/Http/Controllers/Api/PostController.php</span> và viết:</p>
+
+                    <pre><code>&lt;?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Post;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+
+class PostController extends Controller
+{
+    /**
+     * GET /api/posts
+     * Lấy danh sách tất cả posts
+     */
+    public function index()
+    {
+        // Lấy tất cả posts từ database
+        $posts = Post::all();
+        
+        // Trả về JSON response
+        return response()->json([
+            'success' => true,
+            'data' => $posts,
+            'message' => 'Danh sách posts'
+        ], Response::HTTP_OK);
+    }
+}</code></pre>
+
+                    <div class="success-box">
+                        <strong>✅ Giải thích:</strong>
+                        <ul style="margin: 8px 0 0 0;">
+                            <li><code>Post::all()</code> lấy tất cả records từ bảng posts</li>
+                            <li><code>response()->json()</code> trả về JSON</li>
+                            <li><code>Response::HTTP_OK</code> là status code 200</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7: Test index() -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">TEST</span>
+                    <h2>Kiểm Thử Method index()</h2>
+
+                    <h3>Bước 1: Chạy Laravel server:</h3>
+                    <div class="command">php artisan serve</div>
+
+                    <h3>Bước 2: Mở Postman và thực hiện request:</h3>
+                    <table>
+                        <tr>
+                            <th>Thuộc tính</th>
+                            <th>Giá trị</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Method</strong></td>
+                            <td>GET</td>
+                        </tr>
+                        <tr>
+                            <td><strong>URL</strong></td>
+                            <td>http://localhost:8000/api/posts</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Header</strong></td>
+                            <td>Content-Type: application/json</td>
+                        </tr>
+                    </table>
+
+                    <h3>Bước 3: Xem kết quả:</h3>
+                    <pre><code>{
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "title": "Bài viết 1",
+            "content": "Nội dung bài viết 1",
+            "created_at": "2024-01-15T10:30:00.000000Z",
+            "updated_at": "2024-01-15T10:30:00.000000Z"
+        },
+        {
+            "id": 2,
+            "title": "Bài viết 2",
+            "content": "Nội dung bài viết 2",
+            "created_at": "2024-01-16T11:20:00.000000Z",
+            "updated_at": "2024-01-16T11:20:00.000000Z"
+        }
+    ],
+    "message": "Danh sách posts"
+}</code></pre>
+
+                    <div class="success-box">
+                        <strong>✅ Thành công!</strong> API trả về mảng JSON dữ liệu posts
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8: Bước 3b - Viết method show() -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">BƯỚC 3</span>
+                    <h2>Viết Method show() - Chi Tiết Post</h2>
+
+                    <p>Thêm method show() vào PostController:</p>
+
+                    <pre><code>/**
+ * GET /api/posts/{id}
+ * Lấy chi tiết một post
+ */
+public function show($id)
+{
+    // Tìm post theo ID
+    $post = Post::findOrFail($id);
+    
+    // Trả về JSON response
+    return response()->json([
+        'success' => true,
+        'data' => $post,
+        'message' => 'Chi tiết post'
+    ], Response::HTTP_OK);
+}</code></pre>
+
+                    <div class="info-box">
+                        <strong>💡 Lý giải:</strong>
+                        <ul style="margin: 8px 0 0 0;">
+                            <li><code>findOrFail($id)</code> tìm post theo ID hoặc throw 404</li>
+                            <li>Nếu không tìm thấy → tự động trả về 404 error</li>
+                        </ul>
+                    </div>
+
+                    <h3>Test trong Postman:</h3>
+                    <table>
+                        <tr>
+                            <th>Thuộc tính</th>
+                            <th>Giá trị</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Method</strong></td>
+                            <td>GET</td>
+                        </tr>
+                        <tr>
+                            <td><strong>URL</strong></td>
+                            <td>http://localhost:8000/api/posts/1</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Slide 9: Bước 3c - Viết method store() -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">BƯỚC 3</span>
+                    <h2>Viết Method store() - Tạo Post</h2>
+
+                    <p>Thêm method store() vào PostController:</p>
+
+                    <pre><code>/**
+ * POST /api/posts
+ * Tạo post mới
+ */
+public function store(Request $request)
+{
+    // Validate dữ liệu
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'content' => 'required|string'
+    ]);
+    
+    // Tạo post mới
+    $post = Post::create($validated);
+    
+    // Trả về JSON response
+    return response()->json([
+        'success' => true,
+        'data' => $post,
+        'message' => 'Tạo post thành công'
+    ], Response::HTTP_CREATED);
+}</code></pre>
+
+                    <h3>Test trong Postman:</h3>
+                    <table>
+                        <tr>
+                            <th>Thuộc tính</th>
+                            <th>Giá trị</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Method</strong></td>
+                            <td>POST</td>
+                        </tr>
+                        <tr>
+                            <td><strong>URL</strong></td>
+                            <td>http://localhost:8000/api/posts</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Body (JSON)</strong></td>
+                            <td>{"title": "Bài mới", "content": "Nội dung"}</td>
+                        </tr>
+                    </table>
+
+                    <div class="warning-box">
+                        <strong>⚠️ Lưu ý:</strong> Validation rules bắt buộc title và content, không được để trống
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 10: Bước 3d - Viết method update() và destroy() -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">BƯỚC 3</span>
+                    <h2>Viết Method update() & destroy()</h2>
+
+                    <h3>Method update() - Cập nhật Post:</h3>
+                    <pre><code>/**
+ * PUT /api/posts/{id}
+ * Cập nhật post
+ */
+public function update(Request $request, $id)
+{
+    $post = Post::findOrFail($id);
+    
+    $validated = $request->validate([
+        'title' => 'sometimes|required|string|max:255',
+        'content' => 'sometimes|required|string'
+    ]);
+    
+    $post->update($validated);
+    
+    return response()->json([
+        'success' => true,
+        'data' => $post,
+        'message' => 'Cập nhật post thành công'
+    ], Response::HTTP_OK);
+}</code></pre>
+
+                    <h3>Method destroy() - Xóa Post:</h3>
+                    <pre><code>/**
+ * DELETE /api/posts/{id}
+ * Xóa post
+ */
+public function destroy($id)
+{
+    $post = Post::findOrFail($id);
+    $post->delete();
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Xóa post thành công'
+    ], Response::HTTP_NO_CONTENT);
+}</code></pre>
+
+                    <div class="info-box">
+                        <strong>💡 Lý giải:</strong> <code>sometimes</code> trong validation cho phép field tùy chọn
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 11: Bước 4 - Tạo API Resource -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">BƯỚC 4</span>
+                    <h2>Tạo API Resource (Tùy Chọn)</h2>
+
+                    <p>API Resource giúp format response một cách nhất quán và chuyên nghiệp.</p>
+
+                    <h3>Tạo Resource:</h3>
+                    <div class="command">php artisan make:resource PostResource</div>
+
+                    <h3>File được tạo:</h3>
+                    <p><span class="file-path">app/Http/Resources/PostResource.php</span></p>
+
+                    <p>Nội dung:</p>
+                    <pre><code>&lt;?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class PostResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'content' => $this->content,
+            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+        ];
+    }
+}</code></pre>
+
+                    <div class="success-box">
+                        <strong>✅ Lợi ích:</strong>
+                        <ul style="margin: 8px 0 0 0;">
+                            <li>Format date/time theo mong muốn</li>
+                            <li>Ẩn các field nhạy cảm nếu cần</li>
+                            <li>Tái sử dụng ở nhiều endpoint</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 12: Sử dụng Resource trong Controller -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">BƯỚC 4</span>
+                    <h2>Sử Dụng Resource Trong Controller</h2>
+
+                    <p>Cập nhật PostController để sử dụng PostResource:</p>
+
+                    <pre><code>&lt;?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Post;
+use App\Http\Resources\PostResource;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+
+class PostController extends Controller
+{
+    public function index()
+    {
+        $posts = Post::all();
+        return response()->json([
+            'success' => true,
+            'data' => PostResource::collection($posts),
+            'message' => 'Danh sách posts'
+        ], Response::HTTP_OK);
+    }
+
+    public function show($id)
+    {
+        $post = Post::findOrFail($id);
+        return response()->json([
+            'success' => true,
+            'data' => new PostResource($post),
+            'message' => 'Chi tiết post'
+        ], Response::HTTP_OK);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string'
+        ]);
+        
+        $post = Post::create($validated);
+        return response()->json([
+            'success' => true,
+            'data' => new PostResource($post),
+            'message' => 'Tạo post thành công'
+        ], Response::HTTP_CREATED);
+    }
+}</code></pre>
+
+                    <div class="info-box">
+                        <strong>💡 Cách sử dụng:</strong>
+                        <ul style="margin: 8px 0 0 0;">
+                            <li><code>new PostResource($post)</code> cho single resource</li>
+                            <li><code>PostResource::collection($posts)</code> cho multiple resources</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 13: Bước 5 - Test toàn diện -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">BƯỚC 5</span>
+                    <h2>Kiểm Thử Toàn Bộ API</h2>
+
+                    <h3>Test 1: GET /api/posts (Lấy danh sách):</h3>
+                    <table>
+                        <tr>
+                            <th>Phương pháp</th>
+                            <th>Chi tiết</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Method</strong></td>
+                            <td>GET</td>
+                        </tr>
+                        <tr>
+                            <td><strong>URL</strong></td>
+                            <td>http://localhost:8000/api/posts</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status mong đợi</strong></td>
+                            <td>200 OK</td>
+                        </tr>
+                    </table>
+
+                    <h3>Test 2: GET /api/posts/1 (Chi tiết):</h3>
+                    <table>
+                        <tr>
+                            <th>Phương pháp</th>
+                            <th>Chi tiết</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Method</strong></td>
+                            <td>GET</td>
+                        </tr>
+                        <tr>
+                            <td><strong>URL</strong></td>
+                            <td>http://localhost:8000/api/posts/1</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status mong đợi</strong></td>
+                            <td>200 OK</td>
+                        </tr>
+                    </table>
+
+                    <h3>Test 3: POST /api/posts (Tạo mới):</h3>
+                    <table>
+                        <tr>
+                            <th>Phương pháp</th>
+                            <th>Chi tiết</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Method</strong></td>
+                            <td>POST</td>
+                        </tr>
+                        <tr>
+                            <td><strong>URL</strong></td>
+                            <td>http://localhost:8000/api/posts</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Body JSON</strong></td>
+                            <td>{"title": "Bài mới", "content": "Nội dung"}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status mong đợi</strong></td>
+                            <td>201 Created</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Slide 14: Test tiếp tục -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">BƯỚC 5</span>
+                    <h2>Kiểm Thử Toàn Bộ API (Tiếp)</h2>
+
+                    <h3>Test 4: PUT /api/posts/1 (Cập nhật):</h3>
+                    <table>
+                        <tr>
+                            <th>Phương pháp</th>
+                            <th>Chi tiết</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Method</strong></td>
+                            <td>PUT</td>
+                        </tr>
+                        <tr>
+                            <td><strong>URL</strong></td>
+                            <td>http://localhost:8000/api/posts/1</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Body JSON</strong></td>
+                            <td>{"title": "Tiêu đề sửa", "content": "Nội dung sửa"}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status mong đợi</strong></td>
+                            <td>200 OK</td>
+                        </tr>
+                    </table>
+
+                    <h3>Test 5: DELETE /api/posts/2 (Xóa):</h3>
+                    <table>
+                        <tr>
+                            <th>Phương pháp</th>
+                            <th>Chi tiết</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Method</strong></td>
+                            <td>DELETE</td>
+                        </tr>
+                        <tr>
+                            <td><strong>URL</strong></td>
+                            <td>http://localhost:8000/api/posts/2</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status mong đợi</strong></td>
+                            <td>204 No Content</td>
+                        </tr>
+                    </table>
+
+                    <div class="success-box" style="margin-top: 20px;">
+                        <strong>✅ Nếu tất cả tests pass:</strong> API của bạn hoàn toàn hoạt động!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 15: Checklist hoàn thành -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">HOÀN THÀNH</span>
+                    <h2>Checklist Xác Nhận</h2>
+
+                    <div class="success-box">
+                        <h3>✅ Kiểm Tra Xong Cấu Trúc:</h3>
+                        <ul style="margin: 8px 0 0 0;">
+                            <li style="margin: 5px 0;">☐ Model Post tồn tại</li>
+                            <li style="margin: 5px 0;">☐ Bảng posts có dữ liệu</li>
+                            <li style="margin: 5px 0;">☐ Routes định nghĩa trong api.php</li>
+                        </ul>
+                    </div>
+
+                    <div class="success-box">
+                        <h3>✅ Đã Tạo Xong:</h3>
+                        <ul style="margin: 8px 0 0 0;">
+                            <li style="margin: 5px 0;">☐ Api/PostController.php</li>
+                            <li style="margin: 5px 0;">☐ 5 method: index, show, store, update, destroy</li>
+                            <li style="margin: 5px 0;">☐ PostResource.php (tùy chọn)</li>
+                        </ul>
+                    </div>
+
+                    <div class="success-box">
+                        <h3>✅ Đã Test Thành Công:</h3>
+                        <ul style="margin: 8px 0 0 0;">
+                            <li style="margin: 5px 0;">☐ GET /api/posts → 200 OK (danh sách JSON)</li>
+                            <li style="margin: 5px 0;">☐ GET /api/posts/1 → 200 OK (chi tiết JSON)</li>
+                            <li style="margin: 5px 0;">☐ POST /api/posts → 201 Created</li>
+                            <li style="margin: 5px 0;">☐ PUT /api/posts/1 → 200 OK</li>
+                            <li style="margin: 5px 0;">☐ DELETE /api/posts/1 → 204 No Content</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 20px;">
+                        <strong>🎯 Bây giờ:</strong> API của bạn sẵn sàng để kết nối với Frontend!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 16: Troubleshooting -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">GỢI Ý</span>
+                    <h2>Troubleshooting - Xử Lý Lỗi</h2>
+
+                    <h3>❌ Lỗi: 404 Not Found</h3>
+                    <div class="warning-box">
+                        <strong>Nguyên nhân:</strong> Routes không được định nghĩa hoặc URL sai<br>
+                        <strong>Giải pháp:</strong>
+                        <ul style="margin: 8px 0 0 0;">
+                            <li>Kiểm tra lại routes/api.php</li>
+                            <li>Đảm bảo controller đúng tên: Api/PostController</li>
+                            <li>Restart Laravel server: <code>php artisan serve</code></li>
+                        </ul>
+                    </div>
+
+                    <h3>❌ Lỗi: Call to undefined method</h3>
+                    <div class="warning-box">
+                        <strong>Nguyên nhân:</strong> Quên import Model hoặc Response<br>
+                        <strong>Giải pháp:</strong>
+                        <pre><code>use App\Models\Post;
+use Illuminate\Http\Response;</code></pre>
+                    </div>
+
+                    <h3>❌ Lỗi: Validation Error (422)</h3>
+                    <div class="warning-box">
+                        <strong>Nguyên nhân:</strong> Dữ liệu gửi lên không hợp lệ<br>
+                        <strong>Giải pháp:</strong> Kiểm tra Body JSON có khớp với validation rules hay không
+                    </div>
+
+                    <h3>❌ Lỗi: CORS Error</h3>
+                    <div class="warning-box">
+                        <strong>Nguyên nhân:</strong> Frontend gọi API từ domain khác<br>
+                        <strong>Giải pháp:</strong> Cấu hình CORS trong config/cors.php (sẽ học ở chương sau)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 17: Tóm tắt và tiếp theo -->
+            <div class="slide">
+                <div class="slide-content">
+                    <span class="topic-badge">KẾT THÚC</span>
+                    <h2>Tóm Tắt & Tiếp Theo</h2>
+
+                    <h3 style="color: #28a745;">✅ Bạn vừa hoàn thành:</h3>
+                    <ul>
+                        <li>✨ Tạo API Routes trong routes/api.php</li>
+                        <li>✨ Tạo API Controller Api/PostController</li>
+                        <li>✨ Viết 5 method CRUD hoàn chỉnh</li>
+                        <li>✨ Tạo API Resource để format response</li>
+                        <li>✨ Kiểm thử API với Postman</li>
+                    </ul>
+
+                    <h3 style="color: #667eea; margin-top: 20px;">📚 Tiếp theo học:</h3>
+                    <ul>
+                        <li>📖 Validation API và FormRequest</li>
+                        <li>📖 Authentication & Sanctum</li>
+                        <li>📖 CORS Setup</li>
+                        <li>📖 Frontend Integration (React, Vue)</li>
+                    </ul>
+
+                    <div class="success-box" style="margin-top: 25px; text-align: center;">
+                        <h3 style="color: #667eea; margin-bottom: 10px;">🎉 CHÚC MỪNG!</h3>
+                        <p>API của bạn đã sẵn sàng phục vụ dữ liệu JSON cho bất kỳ client nào!</p>
+                        <p style="font-size: 1.2em; color: #667eea; font-weight: bold; margin-top: 15px;">
+                            💻 HEY! CODING IS EASY! 💻
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="prevBtn" onclick="changeSlide(-1)">← Trước</button>
+            <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">17</span></span>
+            <button id="nextBtn" onclick="changeSlide(1)">Tiếp →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            } else if (n < 1) {
+                currentSlide = 1;
+            }
+
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+
+            document.getElementById('currentSlide').textContent = currentSlide;
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+
+            const progress = (currentSlide / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+
+            document.getElementById('slideWrapper').scrollTop = 0;
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            }
+        });
+
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>

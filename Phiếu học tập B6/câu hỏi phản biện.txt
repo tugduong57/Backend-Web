@@ -1,0 +1,1 @@
+Trong phần code, ta dùng htmlspecialchars() khi in dữ liệu ra HTML (ví dụ: htmlspecialchars($row['ten_sinh_vien'])). Tại sao hành động này là cần thiết, ngay cả khi dữ liệu đến từ CSDL của chúng ta, và nó giúp ngăn chặn kiểu tấn công nào?
